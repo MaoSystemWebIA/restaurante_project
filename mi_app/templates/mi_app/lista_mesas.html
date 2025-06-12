@@ -1,0 +1,41 @@
+{% extends 'mi_app/base.html' %}
+
+{% block title %}Mesas - Sistema de Restaurante{% endblock %}
+
+{% block content %}
+<h2 class="mb-4">Mesas</h2>
+
+<div class="row row-cols-1 row-cols-md-4 g-4">
+    {% for mesa in mesas %}
+    <div class="col">
+        <div class="card h-100">
+            <div class="card-body">
+                <h5 class="card-title">Mesa {{ mesa.numero }}</h5>
+                <p class="card-text">
+                    Capacidad: {{ mesa.capacidad }} personas<br>
+                    Estado: 
+                    <span class="badge {% if mesa.estado == 'disponible' %}bg-success{% elif mesa.estado == 'ocupada' %}bg-danger{% else %}bg-warning{% endif %}">
+                        {{ mesa.get_estado_display }}
+                    </span>
+                </p>
+                {% if mesa.estado == 'disponible' %}
+                <a href="{% url 'mi_app:crear_pedido' mesa.id %}" class="btn btn-primary">
+                    Crear Pedido
+                </a>
+                {% else %}
+                <button class="btn btn-secondary" disabled>
+                    Mesa Ocupada
+                </button>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    {% empty %}
+    <div class="col-12">
+        <div class="alert alert-info">
+            No hay mesas registradas.
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %} 

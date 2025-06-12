@@ -1,0 +1,47 @@
+{% extends 'mi_app/base.html' %}
+
+{% block title %}Menú - Sistema de Restaurante{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-3">
+        <div class="list-group">
+            <a href="{% url 'mi_app:menu' %}" class="list-group-item list-group-item-action {% if not categoria %}active{% endif %}">
+                Todos los productos
+            </a>
+            {% for cat in categorias %}
+            <a href="?categoria={{ cat.id }}" class="list-group-item list-group-item-action {% if categoria == cat.id %}active{% endif %}">
+                {{ cat.nombre }}
+            </a>
+            {% endfor %}
+        </div>
+    </div>
+    <div class="col-md-9">
+        <div class="row row-cols-1 row-cols-md-3 g-4">
+            {% for producto in productos %}
+            <div class="col">
+                <div class="card h-100">
+                    {% if producto.imagen %}
+                    <img src="{{ producto.imagen.url }}" class="card-img-top" alt="{{ producto.nombre }}">
+                    {% endif %}
+                    <div class="card-body">
+                        <h5 class="card-title">{{ producto.nombre }}</h5>
+                        <p class="card-text">{{ producto.descripcion }}</p>
+                        <p class="card-text"><strong>Precio: ${{ producto.precio }}</strong></p>
+                        <p class="card-text">
+                            <small class="text-muted">Categoría: {{ producto.categoria.nombre }}</small>
+                        </p>
+                    </div>
+                </div>
+            </div>
+            {% empty %}
+            <div class="col-12">
+                <div class="alert alert-info">
+                    No hay productos disponibles en esta categoría.
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endblock %} 

@@ -1,0 +1,115 @@
+{% extends 'mi_app/base.html' %}
+
+{% block title %}Detalle de Pedido - Sistema de Restaurante{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-8">
+        <div class="card mb-4">
+            <div class="card-header">
+                <h4 class="mb-0">Pedido #{{ pedido.id }} - Mesa {{ pedido.mesa.numero }}</h4>
+            </div>
+            <div class="card-body">
+                <p><strong>Mesero:</strong> {{ pedido.mesero.username }}</p>
+                <p><strong>Fecha:</strong> {{ pedido.fecha }}</p>
+                <p><strong>Estado:</strong> 
+                    <span class="badge {% if pedido.estado == 'pendiente' %}bg-warning{% elif pedido.estado == 'en_proceso' %}bg-info{% elif pedido.estado == 'completado' %}bg-success{% else %}bg-danger{% endif %}">
+                        {{ pedido.get_estado_display }}
+                    </span>
+                </p>
+                <p><strong>Total:</strong> ${{ pedido.total }}</p>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">Productos del Pedido</h5>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Producto</th>
+                                <th>Cantidad</th>
+                                <th>Precio Unit.</th>
+                                <th>Subtotal</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for detalle in pedido.detalles.all %}
+                            <tr>
+                                <td>{{ detalle.producto.nombre }}</td>
+                                <td>{{ detalle.cantidad }}</td>
+                                <td>${{ detalle.precio_unitario }}</td>
+                                <td>${{ detalle.subtotal }}</td>
+                                <td>
+                                    <a href="{% url 'mi_app:eliminar_detalle_pedido' detalle.id %}" 
+                                       class="btn btn-danger btn-sm"
+                                       onclick="return confirm('¿Está seguro de eliminar este producto del pedido?')">
+                                        <i class="fas fa-trash"></i>
+                                    </a>
+                                </td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="5" class="text-center">No hay productos en este pedido</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">Agregar Producto</h5>
+            </div>
+            <div class="card-body">
+                <form method="post">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <label for="producto" class="form-label">Producto</label>
+                        <select name="producto" id="producto" class="form-select" required>
+                            <option value="">Seleccione un producto</option>
+                            {% for producto in productos %}
+                            <option value="{{ producto.id }}">{{ producto.nombre }} - ${{ producto.precio }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="cantidad" class="form-label">Cantidad</label>
+                        <input type="number" name="cantidad" id="cantidad" class="form-control" value="1" min="1" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Agregar al Pedido</button>
+                </form>
+            </div>
+        </div>
+
+        <div class="card mt-4">
+            <div class="card-header">
+                <h5 class="mb-0">Actualizar Estado</h5>
+            </div>
+            <div class="card-body">
+                <form method="post" action="{% url 'mi_app:actualizar_estado_pedido' pedido.id %}">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <label for="estado" class="form-label">Nuevo Estado</label>
+                        <select name="estado" id="estado" class="form-select" required>
+                            <option value="pendiente" {% if pedido.estado == 'pendiente' %}selected{% endif %}>Pendiente</option>
+                            <option value="en_proceso" {% if pedido.estado == 'en_proceso' %}selected{% endif %}>En Proceso</option>
+                            <option value="completado" {% if pedido.estado == 'completado' %}selected{% endif %}>Completado</option>
+                            <option value="cancelado" {% if pedido.estado == 'cancelado' %}selected{% endif %}>Cancelado</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="btn btn-warning">Actualizar Estado</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 
